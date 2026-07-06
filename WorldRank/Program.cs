@@ -44,7 +44,8 @@ void AddPlayer()
         Console.WriteLine("Invalid score. Please enter a valid integer.");
         return;
     }
-    var player = new Player(nextId++,name,parsedScore);
+    var player = new Player(name);
+    player.addScore(parsedScore);
     players.Add(player);
     Console.WriteLine("Player added successfully.");
 }

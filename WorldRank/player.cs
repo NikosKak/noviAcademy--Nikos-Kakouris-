@@ -7,14 +7,18 @@ namespace WorldRank
 {
     public class Player
     {
-        public int Id { get;private set; }
-        public string Name { get;private set; }
+        public Guid Id { get; }
+        public string Name { get;set; }
         public int Score { get; private set; }
-        public Player(int id, string name, int score) {
-            Id = id;
+        public Player(string name) {
+            Id = Guid.NewGuid();
             Name = name;
-            Score = score;
+            Score = 0;
         }
+        public void addScore(int score)
+        {
+            Score += score;
+        } 
         public override string ToString()
         {
             return $"Id: {Id}, Name: {Name}, Score: {Score}";
