@@ -1,11 +1,5 @@
-﻿using System;
-using System.Numerics;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Linq;
-using WorldRank;
-List<Player> players = new List<Player>();
-int nextId = 1;
+﻿using WorldRank;
+var players = new List<Player>();
 while (true)
 {
     Console.WriteLine("Enter Option\n1. Add Player\n2. See All Players\n3. Find by Name\n4. Exit");
@@ -30,22 +24,25 @@ while (true)
 }
 void AddPlayer()
 {
-    Console.WriteLine("Give Player Name:");
-    string name = Console.ReadLine();
+    Console.Write("Name: ");
+    var name = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(name))
     {
-        Console.WriteLine("Name cannot be empty. Please try again.");
+        Console.WriteLine("Name cannot be empty.");
         return;
     }
-    Console.WriteLine("Give Player Score:");
-    string score = Console.ReadLine();
-    if (!int.TryParse(score, out int parsedScore))
+
+    Console.Write("Score: ");
+    var scoreInput = Console.ReadLine();
+    if (!int.TryParse(scoreInput, out var score))
     {
-        Console.WriteLine("Invalid score. Please enter a valid integer.");
+        Console.WriteLine("Score must be a whole number.");
         return;
     }
+
     var player = new Player(name);
-    player.addScore(parsedScore);
+    player.UpdateScore(score);
+
     players.Add(player);
     Console.WriteLine("Player added successfully.");
 }
@@ -64,15 +61,16 @@ void SeeAllPlayers()
 void FindByName()
 {
     Console.WriteLine("Enter Player Name to search:");
-    string name = Console.ReadLine();
+    var name = Console.ReadLine() ?? string.Empty;
     var foundPlayers = players.Where(p=>p.Name.Equals(name,StringComparison.OrdinalIgnoreCase)).ToList();
-    if (foundPlayers.Count == 0)
+    var player = players
+            .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    if (player is null)
     {
-        Console.WriteLine("No players found with that name.");
+        Console.WriteLine("No player found.");
         return;
     }
-    foreach (var player in foundPlayers)
-    {
-        Console.WriteLine(player);
-    }
+
+    Console.WriteLine(player);
 }

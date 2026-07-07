@@ -13,16 +13,13 @@ namespace WorldRank
         public Player(string name) {
             Id = Guid.NewGuid();
             Name = name;
-            Score = 0;
         }
-        public void addScore(int score)
+        public void UpdateScore(int newscore)
         {
-            Score += score;
-        } 
-        public override string ToString()
-        {
-            return $"Id: {Id}, Name: {Name}, Score: {Score}";
+            Score = newscore;
         }
+        public override string ToString() =>
+            $"[{Id}] {Name} - Score: {Score}";
 
     }
 }
