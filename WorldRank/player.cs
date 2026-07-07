@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-
-namespace WorldRank
+﻿namespace WorldRank
 {
     public class Player :IPlayer
     {
         //orizoyme metavlites toy Player
-        public Guid Id { get; }
+        public int Id { get; set; }
         public string Name { get;set; }
-        public int Score { get => Score; set => Score = value; }
+        public int Score { get; set; }
         //orizoume to wallet tou player
-        IDictionary<Currency, Wallet> IPlayer.Wallets => throw new NotImplementedException();
+        public Dictionary<Currency, Wallet> Wallets { get; set; } = new Dictionary<Currency, Wallet>();
         //arxikopoioume ton player
-        public Player(string name) {
-            Id = Guid.NewGuid();
+        public Player(string name, int id) {
+            Id = id;
             Name = name;
         }
         public void UpdateScore(int newscore)

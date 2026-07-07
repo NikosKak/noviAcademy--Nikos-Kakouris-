@@ -2,9 +2,10 @@
 {
     internal interface IPlayer
     {
-        public Guid Id { get; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public int Score { get; set; }
-        IDictionary<Currency, Wallet> Wallets { get; }
+        //kolame to wallet ston player gia na exoume prosbasi se auto
+        Dictionary<Currency, Wallet> Wallets { get; set; }
     }
 }
