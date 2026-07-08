@@ -1,26 +1,45 @@
-﻿using WorldRank;
+﻿using WorldRank.PlayerRepository;
+using WorldRank.WalletRepository;
+using WorldRank.Wallets;
+using WorldRank.Currencies;
+using WorldRank.Players;
+using Microsoft.VisualBasic.FileIO;
 var players = new List<Player>();
+var nextId = 1;
+IWalletRepository walletRepository = new InMemoryWalletRepository(players);
+IPlayerRepository playerRepository = new InMemoryPlayerRepository(players);
 while (true)
 {
-    Console.WriteLine("Enter Option\n1. Add Player\n2. See All Players\n3. Find by Name\n4. Exit");
-    int option = int.Parse(Console.ReadLine());
-    switch (option)
+    Console.WriteLine("\n=== WorldRank Player Registry ===");
+    Console.WriteLine("1. Add player");
+    Console.WriteLine("2. List all players");
+    Console.WriteLine("3. Find player by name");
+    Console.WriteLine("4. Add Wallet to player");
+    Console.WriteLine("5. Get Player Wallets");
+    Console.WriteLine("6. Delete Player");
+    Console.WriteLine("7. Find Player by ID");
+    Console.WriteLine("8. Update Player Score");
+    Console.WriteLine("0. Exit");
+    Console.Write("> ");
+
+    Action? action = Console.ReadLine() switch
     {
-        case 1:
-            AddPlayer();
-            break;
-        case 2:
-            SeeAllPlayers();
-            break;
-        case 3:
-            FindByName();
-            break;
-        case 4:
-            return;
-        default:
-            Console.WriteLine("Invalid option. Please try again.");
-            break;
-    }
+        "1" => AddPlayer,
+        "2" => SeeAllPlayers,
+        "3" => FindByName,
+        "4" => AddWalletToPlayer,
+        "5" => GetWalletOfPlayer,
+        "6" => DeletePlayer,
+        "7" => FindPlayerById,
+        "8" => UpdatePlayerScore,
+        "0" => null,
+        _ => () => Console.WriteLine("Unknown option.")
+    };
+
+    if (action is null)
+        return; // "0" selected — exit
+
+    action();
 }
 void AddPlayer()
 {
@@ -40,7 +59,7 @@ void AddPlayer()
         return;
     }
 
-    var player = new Player(name);
+    var player = new Player(name,nextId++);
     player.UpdateScore(score);
 
     players.Add(player);
@@ -73,4 +92,115 @@ void FindByName()
     }
 
     Console.WriteLine(player);
+}
+void AddWalletToPlayer()
+{
+    Console.Write("Give player id: ");
+    var id = Console.ReadLine();
+    Console.Write("Give Currency: 1 - EUR | 2 - USD\n");
+    var currency = Console.ReadLine();
+
+    Currency cur = Currency.EUR;
+
+    switch (currency)
+    {
+        case "1":
+        default:
+            cur = Currency.EUR;
+            break;
+        case "2":
+            cur =
+            Currency.USD;
+            break;
+    }
+
+    int.TryParse(id, out var playerId);
+    {
+        walletRepository.AddWallet(new Wallet(10, cur, false), playerId);
+    }
+}
+void GetWalletOfPlayer()
+{
+    Console.Write("Give player id: ");
+    var id = Console.ReadLine();
+
+    if (int.TryParse(id, out var playerId))
+    {
+        var wallets = walletRepository.GetPlayer(playerId);
+
+        foreach (var wallet in wallets)
+        {
+            Console.WriteLine($"Wallet Number {wallets.IndexOf(wallet)} {wallet.ToString()}");
+        }
+    }
+    else
+    {
+        Console.Write("Id not a number");
+    }
+}
+void DeletePlayer()
+{
+    Console.Write("Give player id: ");
+    var id = Console.ReadLine();
+    if (int.TryParse(id, out var playerId))
+    {
+        playerRepository.DeletePlayer(playerId);
+        Console.WriteLine($"Player with ID {playerId} deleted successfully.");
+    }
+    else
+    {
+        Console.WriteLine("Invalid ID. Please enter a valid number.");
+    }
+}
+void FindPlayerById()
+{
+    Console.Write("Give player id: ");
+    var id = Console.ReadLine();
+    if (int.TryParse(id, out var playerId))
+    {
+        var player = playerRepository.FindPlayer(playerId);
+        if (player != null)
+        {
+            Console.WriteLine(player);
+        }
+        else
+        {
+            Console.WriteLine($"No player found with ID {playerId}.");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Invalid ID. Please enter a valid number.");
+    }
+}
+void UpdatePlayerScore()
+{
+    Console.Write("Give player id: ");
+    var id = Console.ReadLine();
+    if (int.TryParse(id, out var playerId))
+    {
+        var player = playerRepository.FindPlayer(playerId);
+        if (player != null)
+        {
+            Console.Write("Enter new score: ");
+            var scoreInput = Console.ReadLine();
+            if (int.TryParse(scoreInput, out var newScore))
+            {
+                player.UpdateScore(newScore);
+                Console.WriteLine($"Player {player.Name}'s score updated to {newScore}.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid score. Please enter a valid number.");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"No player found with ID {playerId}.");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Invalid ID. Please enter a valid number.");
+    }
 }
