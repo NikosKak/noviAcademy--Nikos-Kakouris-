@@ -1,4 +1,5 @@
 using NLog;
+using WorldRank.Application.Interfaces;
 using WorldRank.Console;
 using WorldRank.Console.Exceptions;
 using WorldRank.Domain.Enums;

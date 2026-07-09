@@ -6,7 +6,7 @@ using WorldRank.Domain.Exceptions;
 
 namespace WorldRank.Application
 {
-    internal class SubtractFunds : IWalletStrategy
+    public class SubtractFunds : IWalletStrategy
     {
         public void Execute(Wallet wallet, decimal amount)
         {

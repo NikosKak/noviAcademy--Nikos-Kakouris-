@@ -5,7 +5,7 @@ using WorldRank.Console;
 
 namespace WorldRank.Application
 {
-    internal class ForceSubtractFunds : IWalletStrategy
+    public class ForceSubtractFunds : IWalletStrategy
     {
         public void Execute(Wallet wallet, decimal amount)
         {
