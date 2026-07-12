@@ -11,7 +11,7 @@ var logger = LogManager.GetCurrentClassLogger();
 var services = new ServiceCollection();
 services.AddWorldRank();
 services.AddDbContext<WorldRankDbContext>(options =>
-            options.UseSqlServer("Server=localhost;Database=NoviAcademy;User=nikos;Password=12345;Integrated Security=true;TrustServerCertificate=true"));
+            options.UseSqlServer("Server=localhost\\sqlexpress;Database=NoviAcademy;User=nikos;Password=12345;Integrated Security=true;TrustServerCertificate=true"));
 using var provider = services.BuildServiceProvider();
 var playerService = provider.GetRequiredService<PlayerService>();
 var walletService = provider.GetRequiredService<WalletService>();

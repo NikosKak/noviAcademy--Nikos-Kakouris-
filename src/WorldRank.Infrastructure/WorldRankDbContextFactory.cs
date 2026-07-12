@@ -11,7 +11,7 @@ namespace WorldRank.Infrastructure
         public WorldRankDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<WorldRankDbContext>();
-            optionsBuilder.UseSqlServer("Server=localhost;Database=NoviAcademy;User=nikos;Password=12345;Integrated Security=true;TrustServerCertificate=true");
+            optionsBuilder.UseSqlServer("Server=localhost\\sqlexpress;Database=NoviAcademy;User=nikos;Password=12345;Integrated Security=true;TrustServerCertificate=true");
 
             return new WorldRankDbContext(optionsBuilder.Options);
         }
