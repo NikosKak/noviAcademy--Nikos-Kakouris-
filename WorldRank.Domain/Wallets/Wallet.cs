@@ -1,5 +1,6 @@
-using WorldRank.Console.Enums;
 using WorldRank.Console.Exceptions;
+using WorldRank.Domain.Enums;
+using WorldRank.Domain.Exceptions;
 
 namespace WorldRank.Console
 {
@@ -10,7 +11,9 @@ namespace WorldRank.Console
 		public decimal Balance { get; private set; }
 		public bool IsBlocked { get; private set; }
 
-		public Wallet(int playerId, Currency currency, decimal balance, bool isBlocked = false)
+        Currency IWallet.Currency => throw new NotImplementedException();
+
+        public Wallet(int playerId, Currency currency, decimal balance, bool isBlocked = false)
 		{
 			PlayerId = playerId;
 			if (balance < 0)
@@ -58,7 +61,17 @@ namespace WorldRank.Console
 
 			Balance = newBalance;
 		}
+        public void ForcedWithdraw(decimal amount)
+        {
+            if (amount <= 0)
+                throw new InvalidAmountException(amount);
 
-		public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
+            if (IsBlocked)
+                throw new WalletBlockedException(Currency);
+
+            var newBalance = Balance - amount;
+            Balance = newBalance;
+        }
+        public override string ToString() => $"Balance -> {Balance} Currency -> {Currency} IsBlocked -> {IsBlocked}";
 	}
 }
