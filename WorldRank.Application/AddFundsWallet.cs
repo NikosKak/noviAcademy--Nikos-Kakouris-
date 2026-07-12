@@ -9,7 +9,7 @@ namespace WorldRank.Application
     {
         void IWalletStrategy.Execute(Wallet wallet, decimal amount)
         {
-            wallet.Withdraw(amount);
+            wallet.Deposit(amount);
         }
     }
 }
