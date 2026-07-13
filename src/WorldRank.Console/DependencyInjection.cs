@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
@@ -9,7 +10,7 @@ namespace WorldRank.Console;
 public static class DependencyInjection
 {
 	// Composition root: wires up every layer's services in one place.
-	public static IServiceCollection AddWorldRank(this IServiceCollection services)
+	public static IServiceCollection AddWorldRank(this IServiceCollection services, IConfiguration configuration)
 	{
 		// Microsoft.Extensions.Logging with NLog as the provider, so components
 		// can receive an ILogger<T> through constructor injection.
@@ -21,7 +22,7 @@ public static class DependencyInjection
 		});
 
 		services.AddApplication();
-		services.AddInfrastructure();
+		services.AddInfrastructure(configuration);
 
 		return services;
 	}
