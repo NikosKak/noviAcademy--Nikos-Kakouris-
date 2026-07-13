@@ -31,7 +31,7 @@ namespace WorldRank.Infrastructure
                 // Wallet has no single Id field. A player has one wallet per currency,
                 // so the natural (composite) key is PlayerId + Currency — which also
                 // matches the uniqueness rule your repositories enforce.
-                entity.HasKey(w => new { w.PlayerId, w.Currency });
+                entity.HasKey(w => new { w.Id, w.Currency });
 
                 entity.Property(w => w.Currency).HasConversion<string>();
                 entity.Property(w => w.Balance).HasColumnType("decimal(18,2)");

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WorldRank.Application.Interfaces;
+﻿using WorldRank.Application.Interfaces;
 using WorldRank.Domain.Entities;
 
 namespace WorldRank.Infrastructure.Data
