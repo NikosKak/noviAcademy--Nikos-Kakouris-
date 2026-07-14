@@ -1,79 +1,54 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WorldRank.Application.Interfaces;
 using WorldRank.Domain.Entities;
 using WorldRank.Domain.Enums;
+using WorldRank.Domain.Exceptions;
 
 namespace WorldRank.Infrastructure.Data
 {
     internal class DBWalletRepo : IWalletRepository
     {
         private readonly WorldRankDbContext _context;
-
         public DBWalletRepo(WorldRankDbContext context)
         {
             _context = context;
         }
-        public void Add(Wallet wallet)
+        public async Task AddAsync(Wallet wallet, CancellationToken cancellationToken = default)
         {
-            _context.Wallets.Add(wallet);
-            _context.SaveChanges();
-        }
+            var exists = await _context.Wallets
+                .AnyAsync(w => w.PlayerId == wallet.PlayerId && w.Currency == wallet.Currency, cancellationToken);
+            if (exists)
+                throw new DuplicateWalletException(wallet.PlayerId, wallet.Currency);
 
-        public void Block(int playerId, Currency currency)
-        {
-            _context.Wallets.Find(playerId, currency)?.Block();
-            _context.SaveChanges();
+            await _context.Wallets.AddAsync(wallet, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
-
-        public void Deposit(int playerId, Currency currency, decimal amount)
+        public Task<Wallet?> GetByIdAsync(int walletId, CancellationToken cancellationToken = default)
         {
-            _context.Wallets.Find(playerId, currency)?.Deposit(amount);
-            _context.SaveChanges();
+            return _context.Wallets.FirstOrDefaultAsync(w => w.Id == walletId, cancellationToken);
         }
-
-        public Wallet[] GetAll()
+        public Task<Wallet?> GetByPlayerAndCurrencyAsync(int playerId, Currency currency, CancellationToken cancellationToken = default)
         {
-            return _context.Wallets.ToArray();
+            return _context.Wallets
+                .FirstOrDefaultAsync(w => w.PlayerId == playerId && w.Currency == currency, cancellationToken);
         }
-
-        public List<Wallet> GetAllWalletsByPlayerId(int playerId)
+        public async Task<IReadOnlyList<Wallet>> GetByPlayerAsync(int playerId, CancellationToken cancellationToken = default)
         {
-            return _context.Wallets.Where(w => w.PlayerId == playerId).ToList();
+            return await _context.Wallets
+                .AsNoTracking()
+                .Where(w => w.PlayerId == playerId)
+                .ToListAsync(cancellationToken);
         }
-
-        public Wallet GetWallet(int playerId, Currency currency)
+        public async Task<IReadOnlyList<Wallet>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            var wallet = _context.Wallets
-                .FirstOrDefault(w => w.PlayerId == playerId && w.Currency == currency);
-            if (wallet == null)
-                throw new InvalidOperationException("Wallet not found.");
-            return wallet;
+            return await _context.Wallets.AsNoTracking().ToListAsync(cancellationToken);
         }
-
-        public void Unblock(int playerId, Currency currency)
+        public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            _context.Wallets.Find(playerId, currency)?.Unblock();
-            _context.SaveChanges();
-        }
-
-        public void UpdateBalance(int playerId, Currency currency, decimal newBalance)
-        {
-            var wallet = _context.Wallets.Find(playerId, currency);
-            if (wallet == null)
-                throw new InvalidOperationException("Wallet not found.");
-            wallet.SetBalance(newBalance);
-            _context.SaveChanges();
-        }
-
-        public void Withdraw(int playerId, Currency currency, decimal amount)
-        {
-            var wallet = _context.Wallets.Find(playerId, currency);
-            if (wallet == null)
-                throw new InvalidOperationException("Wallet not found.");
-            wallet.Withdraw(amount);
-            _context.SaveChanges();
+            return _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
