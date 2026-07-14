@@ -1,55 +1,44 @@
-﻿using WorldRank.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using WorldRank.Application.Interfaces;
 using WorldRank.Domain.Entities;
 
 namespace WorldRank.Infrastructure.Data
 {
     internal class DBPlayerRepo : IPlayerRepository
     {
-        //private field pou krata reference sto context pou tha xrisimopoihthei gia na kanoume ta operations stin vasi dedomenon
         private readonly WorldRankDbContext _context;
-        //Constructor injection pou dexetai to context kai to apothikeuei sto private field
+
         public DBPlayerRepo(WorldRankDbContext context)
         {
             _context = context;
         }
-        public async Task<Player?> GetByIdAsync(int id)
+
+        public async Task AddAsync(Player player, CancellationToken cancellationToken = default)
         {
-            return await _context.Players.FindAsync(id);
-        }
-        public async Task AddAsync(Player player)
-        {
-            await _context.Players.AddAsync(player);
-            await _context.SaveChangesAsync();
-        }
-        public void AddPlayer(Player player)
-        {
-            //prosthetei ton player sto context kai apothikeuei tis allages stin vasi dedomenon
-            _context.Players.Add(player);
-            _context.SaveChanges();
+            await _context.Players.AddAsync(player, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public void DeletePlayer(int playerId)
+        public Task<Player?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var player = _context.Players.Find(playerId);
-            if (player != null) { 
-                _context.Players.Remove(player);
-                _context.SaveChanges();
-            }
+            return _context.Players.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
-        public Player? FindPlayer(int playerId)
+        // Read-only listing — AsNoTracking avoids change-tracker overhead.
+        public async Task<IReadOnlyList<Player>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return _context.Players.Find(playerId);
+            return await _context.Players.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public IEnumerable<Player> GetAllPlayers()
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
-            return _context.Players.ToList();
-        }
+            var player = await _context.Players.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+            if (player is null)
+                return false;
 
-        public IEnumerable<IGrouping<int, Player>> GroupPlayersByScore()
-        {
-            return _context.Players.GroupBy(p => p.Score).ToList();
+            _context.Players.Remove(player);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
         }
     }
 }

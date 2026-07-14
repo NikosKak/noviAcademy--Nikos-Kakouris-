@@ -6,50 +6,46 @@ namespace WorldRank.Infrastructure.Repositories;
 
 public class InMemoryPlayerRepository : IPlayerRepository
 {
-	private readonly ILogger<InMemoryPlayerRepository> _logger;
+    private readonly ILogger<InMemoryPlayerRepository> _logger;
 
-	private readonly List<Player> _players = new();
+    private readonly List<Player> _players = new();
 
-	public InMemoryPlayerRepository(ILogger<InMemoryPlayerRepository> logger)
-	{
-		_logger = logger;
-	}
+    public InMemoryPlayerRepository(ILogger<InMemoryPlayerRepository> logger)
+    {
+        _logger = logger;
+    }
 
-	public void AddPlayer(Player player)
-	{
-		_players.Add(player);
-		_logger.LogInformation("Player {PlayerId} ({Name}) added with score {Score}", player.Id, player.Name, player.Score);
-	}
+    public Task AddAsync(Player player, CancellationToken cancellationToken = default)
+    {
+        _players.Add(player);
+        _logger.LogInformation("Player {PlayerId} ({Name}) added with score {Score}", player.Id, player.Name, player.Score);
+        return Task.CompletedTask;
+    }
 
-	public IEnumerable<Player> GetAllPlayers()
-	{
-		// Return a copy so callers cannot mutate the repository's internal list.
-		return _players.ToList();
-	}
+    public Task<Player?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_players.FirstOrDefault(item => item.Id == id));
+    }
 
-	public void DeletePlayer(int playerId)
-	{
-		var player = _players.FirstOrDefault(item => item.Id == playerId);
+    public Task<IReadOnlyList<Player>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        // Return a copy so callers cannot mutate the repository's internal list.
+        return Task.FromResult<IReadOnlyList<Player>>(_players.ToList());
+    }
 
-		if (player is null)
-		{
-			_logger.LogWarning("Delete skipped: player {PlayerId} not found", playerId);
-			return;
-		}
+    public Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var player = _players.FirstOrDefault(item => item.Id == id);
 
-		_players.Remove(player);
-		_logger.LogInformation("Player {PlayerId} deleted", playerId);
-	}
+        if (player is null)
+        {
+            _logger.LogWarning("Delete skipped: player {PlayerId} not found", id);
+            return Task.FromResult(false);
+        }
 
-	public Player? FindPlayer(int playerId)
-	{
-		return _players.FirstOrDefault(item => item.Id == playerId);
-	}
-
-	public IEnumerable<IGrouping<int, Player>> GroupPlayersByScore()
-	{
-		return _players
-			.GroupBy(player => player.Score)
-			.OrderByDescending(group => group.Key);
-	}
+        _players.Remove(player);
+        _logger.LogInformation("Player {PlayerId} deleted", id);
+        return Task.FromResult(true);
+    }
 }
+
