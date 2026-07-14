@@ -1,0 +1,6 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost\\sqlexpress;Database=NoviAcademy;User Id=nikos;Password=12345;TrustServerCertificate=True",
+    "UseDatabase": true
+  }
+}
